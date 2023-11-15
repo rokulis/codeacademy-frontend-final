@@ -1,5 +1,6 @@
 import './App.css';
 import Welcome from "./Welcome";
+import TodoList from "./TodoList";
 
 // export default function App() {
 //   return (
@@ -17,6 +18,10 @@ const App = () => {
             <Welcome name={"Vladimirai"} surname={"Pavardė3"}/>
             <Welcome name={"Vyteni"} surname={"Pavardė4"}/>
             <Welcome name={"Laura"} surname={"Pavardė5"}/>
+
+            <TodoList/>
+
+            <TodoList/>
         </div>
     );
 }
