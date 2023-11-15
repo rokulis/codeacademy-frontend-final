@@ -1,25 +1,24 @@
-import logo from './logo.svg';
 import './App.css';
+import Welcome from "./Welcome";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+// export default function App() {
+//   return (
+//       <div>Hello world</div>
+//   );
+// }
+
+const App = () => {
+    return (
+        <div style={{display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", height: "100%", width: "100%"}}>
+            <h1>Mūsų užduotys</h1>
+            <p>Kol kas užduočių nėra</p>
+            <Welcome name={"Rokai"} surname={"Pavardė1"}/>
+            <Welcome name={"Lina"} surname={"Pavardė2"}/>
+            <Welcome name={"Vladimirai"} surname={"Pavardė3"}/>
+            <Welcome name={"Vyteni"} surname={"Pavardė4"}/>
+            <Welcome name={"Laura"} surname={"Pavardė5"}/>
+        </div>
+    );
 }
 
 export default App;
