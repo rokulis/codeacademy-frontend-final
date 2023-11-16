@@ -10,7 +10,7 @@ import {useState} from "react";
 // }
 
 const App = () => {
-    const [showTodos, setShowTodos] = useState(false);
+    const [showTodos, setShowTodos] = useState(true);
     return (
         <div style={{display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", height: "100%", width: "100%"}}>
             <h1>Mūsų užduotys</h1>

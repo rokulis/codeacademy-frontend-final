@@ -1,6 +1,7 @@
 import {useEffect, useRef, useState} from "react";
 import "./TodoList.css";
 import {useGeolocation} from "react-use";
+import axios from "axios";
 
 export default function TodoList() {
 
@@ -12,30 +13,20 @@ export default function TodoList() {
     // const [todos, setTodos] = useState(createInitialTodos());
     //                                    taip yra blogai, nes funkcija iskvieciama tik viena karta
     const [todos, setTodos] = useState(() => createInitialTodos());
+    const [products, setProducts] = useState([]);
     const [inputValue, setInputValue] = useState();
 
-    // jeigu deps yra tuščias, effect funkcija bus įvykdoma tik vieną kartą, kai komponentas susikurs.
     useEffect(() => {
-        console.log("Šitas kodas yra įvykdomas vieną kartą: ", geo)
-        // duok man duomenis is backendo. backende bus controleris, kuris mokes apdoroti musu prasyma
-        // controleris paprasys duombazes ir paims duomenis
-        // ir tuos duomenis atiduos cia ir patalpinsime i komponento busena, pavyzdziui "todos"
+        setTimeout(() => {
+            axios.get("http://localhost:8080/products")
+                .then(response => {
+                    setProducts(response.data);
+                    console.log("sitas ivyks veliau")
+                });
+            console.log("sitas ivyks anksciau")
+        }, 5000)
 
-        return () => {
-            console.log("1: šitas kodas bus vykdomas, kai komponentas nebebus atvaizduojamas, t.y. jis bus sudestroyinamas");
-        }
     }, []);
-
-    useEffect(() => {
-        console.log("šitas kodas bus įvykdomas bet kada, kada pasikeis todos ARBA inputValue state: ", todos, inputValue);
-        return () => {
-            console.log("3: vykdomas pries pagrindine useEffect funkcija, ir pries destroyinima: ", inputValue)
-        };
-    }, [todos, inputValue])
-
-    useEffect(() => {
-        // send to server;
-    }, [geo]);
 
     function createInitialTodos() {
         console.log("kuriami initial todos");
@@ -59,16 +50,16 @@ export default function TodoList() {
 
     return (
         <div style={{minWidth: "1024px"}}>
-            <h2>Užduočių lentelė</h2>
+            <h2>Produktų lentelė</h2>
 
-            {(!todos || todos.length < 1) && <div style={{fontWeight: 700, color: "rebeccapurple"}}>
-                Šiuo metu užduočių nėra, prašome įterpti
+            {(!products || products.length < 1) && <div style={{fontWeight: 700, color: "rebeccapurple"}}>
+                Šiuo metu produktų nėra, prašome įterpti
             </div>}
 
-            {todos && todos.map((todo, index) => (
+            {products && products.map((product, index) => (
                 <div key={index}>
-                    {todo}
-                    <button onClick={() => handleDelete(todo)}>Ištrinti</button>
+                    Produkto pavadinimas: <b>{product.name}</b> ({product.price} EUR), kiekis: <b>{product.quantity}</b>
+                    {/*<button onClick={() => handleDelete(product)}>Ištrinti</button>*/}
                 </div>
             ))}
 
