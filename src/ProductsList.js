@@ -1,29 +1,53 @@
-import {useEffect, useRef, useState} from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./ProductsList.css";
-import {useGeolocation} from "react-use";
+import { useGeolocation } from "react-use";
 import axios from "axios";
-import {useNavigate} from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function ProductsList() {
 
-    const geo = useGeolocation();
     const navigate = useNavigate();
-    const ref = useRef();
 
     const [todos, setTodos] = useState(() => createInitialTodos());
     const [products, setProducts] = useState([]);
     const [inputValue, setInputValue] = useState();
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [isLoggedIn, setLoggedIn] = useState(false);
+    const [user, setUser] = useState(false);
+    // i18n 3 zingsnis
+    const {t, i18n} = useTranslation();
 
     useEffect(() => {
         getData();
+
+        if (!!localStorage.getItem("accessToken")) {
+            setLoggedIn(true);
+        }
+
+        if (localStorage.getItem("user")) {
+            const user = JSON.parse(localStorage.getItem("user"));
+            setUser(user);
+            const isAdmin = user.roles?.some(role => role.name === "ADMIN");
+            setIsAdmin(isAdmin);
+        }
     }, []);
 
     const getData = async () => {
-        setLoading(true);
-        let response = await axios.get("http://localhost:8080/products");
-        setProducts(response.data);
-        setLoading(false);
+        try {
+            setLoading(true);
+            let response = await axios.get("http://localhost:8080/products");
+            console.log(response, response.data)
+            setProducts(response.data);
+            setError('')
+        } catch (error) {
+            console.log("Product fetch error", error)
+            setError(error.response.data.message)
+        } finally {
+            setLoading(false);
+        }
     }
 
     function createInitialTodos() {
@@ -38,31 +62,33 @@ export default function ProductsList() {
 
     const handleSubmit = () => {
         // nunaviguotu i naujo produkto komponenta
-        navigate("/products-new");
+        navigate("/home/products-new");
         // setTodos([...todos, inputValue]);
         // setInputValue("");
     }
 
     const handleDelete = async (uuid) => {
         setLoading(true);
-        await axios.delete(`http://localhost:8080/products/${uuid}`)
-        getData();
+        try {
+            await axios.delete(`http://localhost:8080/products/${uuid}`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+                }
+            })
+            getData();
+        } catch (error) {
+            console.log("Product fetch error", error)
+            setLoading(false)
+            setError(error.response.data.message)
+        }
     }
 
     return (
-        <div style={{minWidth: "1024px"}}>
+        <div style={{ minWidth: "1024px" }}>
+            {/* // i18n 4 zingsnis */}
+            <h1 className={"text-center"} >{t("hello")}, {user.name}</h1>
+
             <h2 className={"text-center my-4"}>Produktų lentelė</h2>
-
-            {/*{(!products || products.length < 1) && <div style={{fontWeight: 700, color: "rebeccapurple"}}>*/}
-            {/*    Šiuo metu produktų nėra, prašome įterpti*/}
-            {/*</div>}*/}
-
-            {/*{products && products.map((product, index) => (*/}
-            {/*    <div key={index}>*/}
-            {/*        Produkto pavadinimas: <b>{product.name}</b> ({product.price} EUR), kiekis: <b>{product.quantity}</b>*/}
-            {/*        /!*<button onClick={() => handleDelete(product)}>Ištrinti</button>*!/*/}
-            {/*    </div>*/}
-            {/*))}*/}
 
             {loading && <div className={"d-flex justify-content-center"}>
                 <div className="spinner-border text-primary" role="status">
@@ -70,26 +96,32 @@ export default function ProductsList() {
                 </div>
             </div>}
 
+            {(!loading && error) &&
+                <p className="alert alert-danger mt-2">{error}</p>
+            }
+
             {!loading && <table className="table">
                 <thead>
-                <tr>
-                    <th scope="col">Nr.</th>
-                    <th scope="col">Pavadinimas</th>
-                    <th scope="col">Kaina</th>
-                    <th scope="col">Kiekis</th>
-                    <th scope="col">Veiksmai</th>
-                </tr>
+                    <tr>
+                        <th scope="col">Nr.</th>
+                        <th scope="col">Pavadinimas</th>
+                        <th scope="col">Kaina</th>
+                        <th scope="col">Kiekis</th>
+                        <th scope="col">Veiksmai</th>
+                    </tr>
                 </thead>
                 <tbody>
-                {products?.map((product, index) => <tr key={index}>
-                    <td>{index + 1}</td>
-                    <td>{product.name}</td>
-                    <td>{product.price}</td>
-                    <td>{product.quantity}</td>
-                    <td>
-                        <button className="btn btn-danger" onClick={() => handleDelete(product.id)}>Trinti</button>
-                    </td>
-                </tr>)}
+                    {products?.map((product, index) => <tr key={index}>
+                        <td>{index + 1}</td>
+                        <td>
+                            {isLoggedIn ? <Link to={`/home/product-details/${product.id}`}>{product.name}</Link> : <> {product.name} </>}
+                        </td>
+                        <td>{product.price}</td>
+                        <td>{product.quantity}</td>
+                        <td>
+                            {isAdmin && <button className="btn btn-danger" onClick={() => handleDelete(product.id)}>Trinti</button>}
+                        </td>
+                    </tr>)}
                 </tbody>
             </table>}
 
@@ -110,12 +142,14 @@ export default function ProductsList() {
                 {/*</form>*/}
 
                 {/*         buvo anksciau: () => setTodos([...todos, inputValue])              */}
-                <button
-                    onClick={handleSubmit}
-                    type="button"
-                    className="btn btn-primary align-self-center">
-                    Pridėti naują užduotį
-                </button>
+                {isAdmin &&
+                    <button
+                        onClick={handleSubmit}
+                        type="button"
+                        className="btn btn-primary align-self-center">
+                        Pridėti naują užduotį
+                    </button>
+                }
                 {/*<button onClick={handleSubmit}>Pridėti naują užduotį</button>*/}
             </div>
 

@@ -1,20 +1,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import {BrowserRouter, Link, Route, Routes} from "react-router-dom";
-import TodoList from "./TodoList";
-import ProductsList from "./ProductsList";
+import {BrowserRouter} from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.css';
-import Navbar from "./Navbar";
-import NewProduct from "./NewProduct";
+import App from "./App";
+import './i18n'; // i18n 2 zingsnis
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-    <BrowserRouter>
-        <Navbar />
-        <Routes>
-            <Route path={"/products"} element={<ProductsList/>} />
-            <Route path={"/products-new"} element={<NewProduct/>} />
-            <Route path={"/todos"} element={<TodoList/>} />
-        </Routes>
-    </BrowserRouter>
+    <React.StrictMode>
+        <BrowserRouter>
+            <App/>
+        </BrowserRouter>
+    </React.StrictMode>
 );

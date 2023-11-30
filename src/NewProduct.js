@@ -19,7 +19,10 @@ export default function NewProduct(props) {
             description: description
         };
 
+        console.log("bandome prideti produkta: ", obj);
+
         let data = await axios.post("http://localhost:8080/products", obj)
+        console.log("produktas pridetas: ", data.response);
         // axios.post("http://localhost:8080/products", obj)
         //     .then(() => console.log("1ivykdoma, kai uzklausa baigiasi"))
         navigate(-1);

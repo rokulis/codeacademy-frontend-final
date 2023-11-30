@@ -1,7 +1,21 @@
-import {Link, NavLink} from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import './Navbar.css';
+import { useTranslation } from "react-i18next";
 
 export default function Navbar() {
+
+    const navigate = useNavigate();
+
+    // i18n 5 zingsnis
+    const { t, i18n } = useTranslation();
+
+    const isLoggedIn = !!localStorage.getItem("accessToken")
+
+    const handleLogout = () => {
+        localStorage.clear();
+        navigate("/")
+    }
+
     return (
         <nav className="navbar navbar-expand-lg bg-body-tertiary">
             <div className="container-fluid">
@@ -13,23 +27,36 @@ export default function Navbar() {
                     <ul className="navbar-nav">
                         <li className="nav-item">
                             {/*<Link className="nav-link" to={"products"}>Produktai</Link>*/}
-                            <NavLink to={"products"} className={({ isActive }) => isActive ? "active-red nav-link" : "nav-link"}>Produktai</NavLink>
+                            <NavLink to={""} className={({ isActive }) => isActive ? "active-red nav-link" : "nav-link"}>Produktai</NavLink>
                         </li>
-                        <li className="nav-item">
-                            {/*<Link className="nav-link" to={"todos"}>Užduotys</Link>*/}
-                            <NavLink to={"todos"} className={({ isActive }) => isActive ? "active-red nav-link" : "nav-link"}>Užduotys</NavLink>
-                        </li>
-                        {/*<li className="nav-item dropdown">*/}
-                        {/*    <a className="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">*/}
-                        {/*        Dropdown link*/}
-                        {/*    </a>*/}
-                        {/*    <ul className="dropdown-menu">*/}
-                        {/*        <li><a className="dropdown-item" href="#">Action</a></li>*/}
-                        {/*        <li><a className="dropdown-item" href="#">Another action</a></li>*/}
-                        {/*        <li><a className="dropdown-item" href="#">Something else here</a></li>*/}
-                        {/*    </ul>*/}
-                        {/*</li>*/}
+                        {isLoggedIn ?
+                            <>
+                                <li className="nav-item">
+                                    {/*<Link className="nav-link" to={"todos"}>Užduotys</Link>*/}
+                                    <NavLink to={"home/todos"} className={({ isActive }) => isActive ? "active-red nav-link" : "nav-link"}>Užduotys</NavLink>
+                                </li>
+                                <li className="nav-item">
+                                    <button onClick={handleLogout} className="btn btn-warning ml-auto">Logout</button>
+                                </li>
+                            </>
+                            :
+                            <>
+                                <li className="nav-item">
+                                    <NavLink to={"login"} className={({ isActive }) => isActive ? "active-red nav-link" : "nav-link"}>Login</NavLink>
+                                </li>
+                                <li className="nav-item">
+                                    <NavLink to={"register"} className={({ isActive }) => isActive ? "active-red nav-link" : "nav-link"}>Signup</NavLink>
+                                </li>
+                            </>
+                        }
+
                     </ul>
+
+                    {/* // i18n 6 zingsnis */}
+                    <div className="d-flex gap-3" style={{ marginLeft: "auto" }}>
+                        <div onClick={() => i18n.changeLanguage("en")}>EN</div>
+                        <div onClick={() => i18n.changeLanguage("lt")}>LT</div>
+                    </div>
                 </div>
             </div>
         </nav>
